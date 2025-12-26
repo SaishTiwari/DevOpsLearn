@@ -1,11 +1,5 @@
--- Create database
-CREATE DATABASE todo_db;
-
--- Connect to the database
-\c todo_db;
-
--- Create todos table
-CREATE TABLE todos (
+-- Create todos table (IF NOT EXISTS to handle re-initialization)
+CREATE TABLE IF NOT EXISTS todos (
   id SERIAL PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   description TEXT,
@@ -23,6 +17,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_todos_updated_at ON todos;
 CREATE TRIGGER update_todos_updated_at
 BEFORE UPDATE ON todos
 FOR EACH ROW
