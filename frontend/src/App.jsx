@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { todoAPI } from './api/todoAPI';
 import TodoForm from './components/TodoForm';
 import TodoItem from './components/TodoItem';

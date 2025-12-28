@@ -1,6 +1,4 @@
-import React from 'react';
-
-const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
+const TodoItem = ({ todo, onToggle, onDelete }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
       <div className="flex items-center space-x-3 flex-1">
