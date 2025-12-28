@@ -22,6 +22,8 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Title is required' });
     }
 
+    const name  = 'saish';
+
     const result = await pool.query(
       'INSERT INTO todos (title, description, completed) VALUES ($1, $2, $3) RETURNING *',
       [title, description || '', false]
