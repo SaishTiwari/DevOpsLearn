@@ -31,8 +31,6 @@ services:
       args:
         VITE_API_URL: http://3.231.60.104:5050/api
     container_name: frontend
-    env_file:
-      - ./frontend/.env
     ports:
       - "3000:3000"
     depends_on:
