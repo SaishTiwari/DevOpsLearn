@@ -48,16 +48,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # Step 1: Debug secrets
-      - name: Debug EC2 variables
+      # Step 1: Validate secrets
+      - name: Validate secrets
         run: |
-          echo "EC2_HOST=${EC2_HOST}"
-          echo "EC2_USER=${EC2_USER}"
-          echo "EC2_APP_DIR=${EC2_APP_DIR}"
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then
+            echo "Error: EC2_HOST secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.EC2_USER }}" ]; then
+            echo "Error: EC2_USER secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.EC2_KEY }}" ]; then
+            echo "Error: EC2_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.EC2_APP_DIR }}" ]; then
+            echo "Error: EC2_APP_DIR secret is not set"
+            exit 1
+          fi
+          echo "All secrets are set"
 
       # Step 2: Write SSH key
       - name: Write SSH key
@@ -70,24 +80,24 @@ jobs:
 
       # Step 3: Add EC2 host to known_hosts
       - name: Add EC2 host to known_hosts
-        run: ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
       # Step 4: Test SSH connectivity
       - name: Test SSH connectivity
-        run: ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "echo connected"
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          EC2_USER="${{ secrets.EC2_USER }}"
+          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "echo 'SSH connection successful'"
 
       # Step 5: Deploy on EC2
       - name: Deploy on EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
         run: |
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          EC2_USER="${{ secrets.EC2_USER }}"
+          EC2_APP_DIR="${{ secrets.EC2_APP_DIR }}"
+          
           ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
             set -e
             cd "${EC2_APP_DIR}" || exit 1
