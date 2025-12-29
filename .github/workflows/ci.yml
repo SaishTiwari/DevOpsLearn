@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install backend deps
+      - name: Install backend dependencies
         working-directory: backend
         run: npm ci
 
@@ -26,7 +26,7 @@ jobs:
         working-directory: backend
         run: npm run lint -- --max-warnings=0
 
-      - name: Install frontend deps
+      - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
@@ -59,11 +59,12 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
 
-      # Step 2: Write SSH key
+      # Step 2: Write SSH key to absolute path
       - name: Write SSH key
         run: |
-          echo "${EC2_KEY}" > ec2_key.pem
-          chmod 600 ec2_key.pem
+          mkdir -p ~/.ssh
+          echo "${EC2_KEY}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
         env:
           EC2_KEY: ${{ secrets.EC2_KEY }}
 
@@ -77,7 +78,7 @@ jobs:
 
       # Step 4: Test SSH connectivity
       - name: Test SSH connectivity
-        run: ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "echo connected"
+        run: ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "echo connected"
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -89,7 +90,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
         run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
             set -e
             cd "${EC2_APP_DIR}" || exit 1
             # fetch latest code
