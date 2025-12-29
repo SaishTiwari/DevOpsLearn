@@ -51,15 +51,15 @@ jobs:
       # Step 1: Debug secrets
       - name: Debug EC2 variables
         run: |
-          echo "EC2_HOST=$EC2_HOST"
-          echo "EC2_USER=$EC2_USER"
-          echo "EC2_APP_DIR=$EC2_APP_DIR"
+          echo "EC2_HOST=${EC2_HOST}"
+          echo "EC2_USER=${EC2_USER}"
+          echo "EC2_APP_DIR=${EC2_APP_DIR}"
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
 
-      # Step 2: Write SSH key to absolute path
+      # Step 2: Write SSH key
       - name: Write SSH key
         run: |
           mkdir -p ~/.ssh
@@ -70,9 +70,7 @@ jobs:
 
       # Step 3: Add EC2 host to known_hosts
       - name: Add EC2 host to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
 
@@ -83,7 +81,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
 
-      # Step 5: Deploy
+      # Step 5: Deploy on EC2
       - name: Deploy on EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -93,12 +91,9 @@ jobs:
           ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
             set -e
             cd "${EC2_APP_DIR}" || exit 1
-            # fetch latest code
             git fetch --all
             git reset --hard origin/main
-            # rebuild containers
             docker compose up -d --build
-            # clean old images
             docker image prune -f
             docker compose ps
           EOF
