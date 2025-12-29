@@ -13,6 +13,10 @@ RUN npm install
 # Copy all frontend code
 COPY . .
 
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+
 # Expose frontend port
 EXPOSE 3000
 
