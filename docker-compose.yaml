@@ -29,7 +29,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://51.20.56.135:5050/api
+        VITE_API_URL: http://13.51.200.255:5050/api
     container_name: frontend
     ports:
       - "3000:3000"
