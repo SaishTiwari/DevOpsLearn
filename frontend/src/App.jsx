@@ -60,39 +60,103 @@ function App() {
     }
   };
 
+  const completedCount = todos.filter((t) => t.completed).length;
+  const pendingCount = todos.length - completedCount;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Todo List</h1>
-          <p className="text-gray-600">Manage your tasks efficiently</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-6 px-4 sm:py-12">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mb-4">
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+            My Tasks
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base">Organize your day, one task at a time</p>
         </div>
 
+        {/* Error Alert */}
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm animate-fade-in">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {error}
+            </div>
           </div>
         )}
 
+        {/* Add Task Form */}
         <div className="mb-8">
           <TodoForm onSubmit={handleAddTodo} />
         </div>
 
+        {/* Stats Bar */}
+        {todos.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <p className="text-xs sm:text-sm text-gray-500 font-medium mb-1">Total</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{todos.length}</p>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 shadow-sm border border-amber-100">
+              <p className="text-xs sm:text-sm text-amber-700 font-medium mb-1">Pending</p>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-600">{pendingCount}</p>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 shadow-sm border border-emerald-100">
+              <p className="text-xs sm:text-sm text-emerald-700 font-medium mb-1">Done</p>
+              <p className="text-2xl sm:text-3xl font-bold text-emerald-600">{completedCount}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Tasks List */}
         <div className="space-y-3">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Loading todos...</p>
+            <div className="text-center py-16 bg-white/50 backdrop-blur-sm rounded-2xl">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-500 mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading your tasks...</p>
             </div>
           ) : todos.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-              <p className="text-gray-500 text-lg">No todos yet. Add one above!</p>
+            <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                <svg
+                  className="w-10 h-10 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No tasks yet</h3>
+              <p className="text-gray-500">Create your first task to get started!</p>
             </div>
           ) : (
-            <>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Your Todos ({todos.length})
-              </h2>
+            <div className="space-y-3">
               {todos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -101,7 +165,7 @@ function App() {
                   onDelete={handleDeleteTodo}
                 />
               ))}
-            </>
+            </div>
           )}
         </div>
       </div>
