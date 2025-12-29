@@ -45,32 +45,29 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Validate secrets
-        run: |
-          if [ -z "${{ secrets.EC2_HOST }}" ] || [ -z "${{ secrets.EC2_USER }}" ] || [ -z "${{ secrets.EC2_KEY }}" ] || [ -z "${{ secrets.EC2_APP_DIR }}" ]; then
-            echo "Error: Required secrets are not set"
-            exit 1
-          fi
-
-      - name: Setup SSH
+      - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_KEY }}" | tr -d '\r' > ~/.ssh/ec2_key.pem
-          chmod 600 ~/.ssh/ec2_key.pem
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
 
-      - name: Test SSH Connection
+      - name: Write SSH key
         run: |
-          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "echo 'SSH connection successful'"
+          echo "${EC2_KEY}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+        env:
+          EC2_KEY: ${{ secrets.EC2_KEY }}
 
-      - name: Deploy to EC2
+      - name: Deploy on EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
         run: |
-          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" bash << 'EOF'
+          ssh -i ec2_key.pem ${EC2_USER}@${EC2_HOST} << 'EOF'
             set -e
-            cd "${{ secrets.EC2_APP_DIR }}"
+            cd "${EC2_APP_DIR}" || exit 1
             git fetch --all
             git reset --hard origin/main
             docker compose up -d --build
